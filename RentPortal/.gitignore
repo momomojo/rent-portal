@@ -1,0 +1,21 @@
+# Ignore Firebase service account key
+/config/serviceAccountKey.json
+
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+
+# Build directories
+build/
+dist/
+
+# Miscellaneous
+.DS_Store
+Thumbs.db

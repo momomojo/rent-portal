@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/rent-portal/static/css/main.bccc93e1.css",
+    "main.js": "/rent-portal/static/js/main.e539c6e8.js",
+    "index.html": "/rent-portal/index.html",
+    "main.bccc93e1.css.map": "/rent-portal/static/css/main.bccc93e1.css.map",
+    "main.e539c6e8.js.map": "/rent-portal/static/js/main.e539c6e8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bccc93e1.css",
+    "static/js/main.e539c6e8.js"
+  ]
+}

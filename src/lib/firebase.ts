@@ -1,11 +1,12 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getStorage } from 'firebase/storage';
+// Import only the needed functions from each service
+import { initializeApp, FirebaseOptions } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, Firestore } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { Analytics, getAnalytics, isSupported } from "firebase/analytics";
 import { toast } from 'sonner';
 
-const firebaseConfig = {
+const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -18,62 +19,87 @@ const firebaseConfig = {
 // Initialize Firebase app
 const app = initializeApp(firebaseConfig);
 
-// Initialize core services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Initialize services lazily using a singleton pattern
+let _auth: Auth | null = null;
+let _db: Firestore | null = null;
+let _storage: FirebaseStorage | null = null;
+let _analytics: Analytics | null = null;
 
-// Initialize optional services with error handling
-let storageInstance = null;
-try {
-  storageInstance = getStorage(app);
-} catch (error) {
-  console.warn('Firebase Storage initialization failed:', error);
-}
-export const storage = storageInstance;
-
-// Initialize analytics conditionally
-export const analytics = (async () => {
-  try {
-    if (await isSupported()) {
-      return getAnalytics(app);
-    }
-    return null;
-  } catch (error) {
-    console.warn('Firebase Analytics initialization failed:', error);
-    return null;
+// Lazy initialization functions
+export const auth = () => {
+  if (!_auth) {
+    _auth = getAuth(app);
   }
-})();
+  return _auth;
+};
 
-// Error handling utility
+export const db = () => {
+  if (!_db) {
+    _db = getFirestore(app);
+  }
+  return _db;
+};
+
+export const storage = () => {
+  if (!_storage) {
+    try {
+      _storage = getStorage(app);
+    } catch (error) {
+      console.warn('Firebase Storage initialization failed:', error);
+    }
+  }
+  return _storage;
+};
+
+export const analytics = async () => {
+  if (!_analytics) {
+    try {
+      if (await isSupported()) {
+        _analytics = getAnalytics(app);
+      }
+    } catch (error) {
+      console.warn('Firebase Analytics initialization failed:', error);
+    }
+  }
+  return _analytics;
+};
+
+// Error handling utility with specific error messages
 export function handleFirestoreError(error: any) {
   console.error('Firestore error:', error);
 
-  // Handle specific Firebase error codes
-  switch (error.code) {
-    case 'permission-denied':
-      toast.error('You do not have permission to perform this action');
-      break;
-    case 'unavailable':
-      toast.error('Service is currently unavailable. Please try again later');
-      break;
-    case 'not-found':
-      toast.error('The requested resource was not found');
-      break;
-    case 'already-exists':
-      toast.error('This resource already exists');
-      break;
-    case 'unauthenticated':
-      toast.error('Please sign in to continue');
-      break;
-    default:
-      toast.error('An error occurred. Please try again');
-  }
+  const errorMessages = {
+    'permission-denied': 'You do not have permission to perform this action',
+    'unavailable': 'Service is currently unavailable. Please try again later',
+    'not-found': 'The requested resource was not found',
+    'already-exists': 'This resource already exists',
+    'unauthenticated': 'Please sign in to continue',
+    'resource-exhausted': 'Request quota has been exceeded. Please try again later',
+    'failed-precondition': 'Operation was rejected due to the current system state',
+    'cancelled': 'Operation was cancelled',
+    'data-loss': 'Unrecoverable data loss or corruption',
+    'unknown': 'An unknown error occurred',
+    'invalid-argument': 'Invalid argument provided',
+    'deadline-exceeded': 'Deadline expired before operation could complete',
+    'aborted': 'Operation was aborted'
+  };
+
+  const message = errorMessages[error.code as keyof typeof errorMessages] || 'An error occurred. Please try again';
+  toast.error(message);
 }
 
-// User profile management
-export const createUserProfile = async (uid: string, email: string, role: string, name: string) => {
+// User profile management with improved error handling and types
+interface UserProfile {
+  uid: string;
+  email: string;
+  role: string;
+  name: string;
+  createdAt: number;
+}
+
+export const createUserProfile = async (uid: string, email: string, role: string, name: string): Promise<UserProfile> => {
   try {
-    const userProfile = {
+    const userProfile: UserProfile = {
       uid,
       email,
       role,
@@ -81,7 +107,8 @@ export const createUserProfile = async (uid: string, email: string, role: string
       createdAt: Date.now()
     };
 
-    await setDoc(doc(db, 'users', uid), userProfile);
+    const firestore = db();
+    await setDoc(doc(firestore, 'users', uid), userProfile);
     return userProfile;
   } catch (error) {
     console.error('Error creating user profile:', error);
@@ -90,11 +117,12 @@ export const createUserProfile = async (uid: string, email: string, role: string
   }
 };
 
-export const getUserProfile = async (uid: string) => {
+export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
   try {
-    const docRef = doc(db, 'users', uid);
+    const firestore = db();
+    const docRef = doc(firestore, 'users', uid);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
+    return docSnap.exists() ? docSnap.data() as UserProfile : null;
   } catch (error) {
     console.error('Error fetching user profile:', error);
     handleFirestoreError(error);
@@ -103,6 +131,6 @@ export const getUserProfile = async (uid: string) => {
 };
 
 // Storage utility function
-export const isStorageAvailable = () => {
-  return storage !== null;
+export const isStorageAvailable = (): boolean => {
+  return storage() !== null;
 };

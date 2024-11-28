@@ -9,7 +9,7 @@ export function useAuthState() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(
+    const unsubscribe = auth().onAuthStateChanged(
       (user) => {
         setUser(user);
         setLoading(false);

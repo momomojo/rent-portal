@@ -1,0 +1,204 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Documentation/API Reference" />
+
+# API Documentation
+
+## Authentication API
+
+### `POST /api/auth/login`
+Authenticates a user and returns a JWT token.
+
+**Request Body:**
+```json
+{
+  "email": "string",
+  "password": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "token": "string",
+  "user": {
+    "id": "string",
+    "email": "string",
+    "role": "string"
+  }
+}
+```
+
+### `POST /api/auth/register`
+Registers a new user.
+
+**Request Body:**
+```json
+{
+  "email": "string",
+  "password": "string",
+  "name": "string"
+}
+```
+
+## Properties API
+
+### `GET /api/properties`
+Returns a list of properties.
+
+**Query Parameters:**
+- `page`: number (optional)
+- `limit`: number (optional)
+- `search`: string (optional)
+
+**Response:**
+```json
+{
+  "items": [
+    {
+      "id": "string",
+      "address": "string",
+      "rent": "number",
+      "status": "string"
+    }
+  ],
+  "total": "number",
+  "page": "number",
+  "limit": "number"
+}
+```
+
+### `POST /api/properties`
+Creates a new property listing.
+
+**Request Body:**
+```json
+{
+  "address": "string",
+  "rent": "number",
+  "description": "string",
+  "amenities": "string[]"
+}
+```
+
+## Payments API
+
+### `GET /api/payments`
+Returns a list of payments.
+
+**Query Parameters:**
+- `startDate`: string (optional)
+- `endDate`: string (optional)
+- `status`: string (optional)
+
+**Response:**
+```json
+{
+  "items": [
+    {
+      "id": "string",
+      "amount": "number",
+      "status": "string",
+      "date": "string"
+    }
+  ]
+}
+```
+
+### `POST /api/payments`
+Creates a new payment.
+
+**Request Body:**
+```json
+{
+  "amount": "number",
+  "propertyId": "string",
+  "paymentMethod": "string"
+}
+```
+
+## Maintenance API
+
+### `GET /api/maintenance`
+Returns a list of maintenance requests.
+
+**Query Parameters:**
+- `status`: string (optional)
+- `priority`: string (optional)
+
+**Response:**
+```json
+{
+  "items": [
+    {
+      "id": "string",
+      "description": "string",
+      "status": "string",
+      "priority": "string",
+      "createdAt": "string"
+    }
+  ]
+}
+```
+
+### `POST /api/maintenance`
+Creates a new maintenance request.
+
+**Request Body:**
+```json
+{
+  "description": "string",
+  "propertyId": "string",
+  "priority": "string"
+}
+```
+
+## Error Handling
+
+All API endpoints follow a consistent error response format:
+
+```json
+{
+  "error": {
+    "code": "string",
+    "message": "string",
+    "details": "object (optional)"
+  }
+}
+```
+
+Common error codes:
+- `400`: Bad Request
+- `401`: Unauthorized
+- `403`: Forbidden
+- `404`: Not Found
+- `500`: Internal Server Error
+
+## Rate Limiting
+
+API requests are rate limited to:
+- 100 requests per minute for authenticated users
+- 20 requests per minute for unauthenticated users
+
+Rate limit headers are included in all responses:
+- `X-RateLimit-Limit`: Total requests allowed per window
+- `X-RateLimit-Remaining`: Remaining requests in current window
+- `X-RateLimit-Reset`: Time when the rate limit resets
+
+## Authentication
+
+All authenticated endpoints require a valid JWT token in the Authorization header:
+
+```
+Authorization: Bearer <token>
+```
+
+Tokens expire after 24 hours and need to be refreshed using the refresh token endpoint.
+
+## Versioning
+
+The API is versioned through the URL path:
+- Current version: `/api/v1/`
+- Legacy version: `/api/v0/` (deprecated)
+
+API changes are documented in the changelog and follow semantic versioning.

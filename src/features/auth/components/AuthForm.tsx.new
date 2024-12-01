@@ -1,0 +1,215 @@
+import React, { useState, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { useAuthState } from '@shared/hooks/useAuthState';
+import { signIn, signUp } from '../store/authSlice';
+import { AppDispatch } from '@core/store';
+import { Button, TextField, FormControl, InputLabel, Select, MenuItem, Alert, Box } from '@mui/material';
+import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
+import { PasswordRequirements } from './PasswordRequirements';
+import { validatePassword } from '../utils/passwordValidation';
+import debounce from 'lodash/debounce';
+import { useRateLimitedAuth } from '@core/hooks/useRateLimitedAuth';
+
+interface AuthFormProps {
+  type: 'login' | 'register';
+}
+
+const AuthForm = ({ type }: AuthFormProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const { error } = useAuthState();
+  const { isBlocked, checkRateLimit } = useRateLimitedAuth();
+
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    displayName: '',
+    role: 'tenant'
+  });
+
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
+
+  const debouncedValidation = useCallback(
+    debounce((password: string) => {
+      const { errors } = validatePassword(password);
+      setValidationErrors(errors);
+    }, 300),
+    []
+  );
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name as string]: value
+    }));
+
+    if (name === 'password') {
+      debouncedValidation(value as string);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!checkRateLimit(formData.email)) {
+      return;
+    }
+
+    try {
+      if (type === 'login') {
+        await dispatch(signIn({ 
+          email: formData.email, 
+          password: formData.password 
+        })).unwrap();
+        navigate('/dashboard');
+      } else {
+        if (formData.password !== formData.confirmPassword) {
+          throw new Error('Passwords do not match');
+        }
+        
+        const { isValid, errors } = validatePassword(formData.password);
+        if (!isValid) {
+          throw new Error(errors[0]);
+        }
+
+        await dispatch(signUp({
+          email: formData.email,
+          password: formData.password,
+          displayName: formData.displayName,
+          role: formData.role
+        })).unwrap();
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      console.error('Auth error:', err);
+    }
+  };
+
+  const renderRegisterFields = () => {
+    if (type !== 'register') return null;
+    
+    return (
+      <>
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="displayName"
+          label="Full Name"
+          name="displayName"
+          autoComplete="name"
+          value={formData.displayName}
+          onChange={handleChange}
+        />
+        <TextField
+          type="password"
+          name="confirmPassword"
+          label="Confirm Password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          required
+          error={formData.password !== formData.confirmPassword}
+          helperText={formData.password !== formData.confirmPassword ? 'Passwords do not match' : ''}
+        />
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="role-label">Role</InputLabel>
+          <Select
+            labelId="role-label"
+            id="role"
+            name="role"
+            value={formData.role}
+            label="Role"
+            onChange={handleChange}
+          >
+            <MenuItem value="tenant">Tenant</MenuItem>
+            <MenuItem value="landlord">Landlord</MenuItem>
+          </Select>
+        </FormControl>
+      </>
+    );
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            {type === 'login' ? 'Sign in to your account' : 'Create a new account'}
+          </h2>
+        </div>
+        
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <Alert severity="error" className="mb-4">
+              {error}
+            </Alert>
+          )}
+          {isBlocked && (
+            <Alert severity="warning" className="mb-4">
+              Too many login attempts. Please try again later.
+            </Alert>
+          )}
+          
+          <div className="rounded-md shadow-sm -space-y-px">
+            {renderRegisterFields()}
+            
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            
+            <TextField
+              type="password"
+              name="password"
+              label="Password"
+              value={formData.password}
+              onChange={handleChange}
+              onFocus={() => setShowPasswordRequirements(true)}
+              fullWidth
+              margin="normal"
+              required
+              error={validationErrors.length > 0}
+              helperText={validationErrors.length > 0 ? validationErrors[0] : ''}
+            />
+            
+            {type === 'register' && (
+              <PasswordRequirements 
+                password={formData.password} 
+                showValidation={showPasswordRequirements}
+              />
+            )}
+            
+            {type === 'register' && formData.password && (
+              <PasswordStrengthIndicator password={formData.password} />
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            disabled={isBlocked}
+          >
+            {type === 'login' ? 'Sign In' : 'Create Account'}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AuthForm;

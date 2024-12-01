@@ -1,0 +1,175 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Documentation/Component Library" />
+
+# Component Library Documentation
+
+## Overview
+
+Our component library is built with React, TypeScript, and Tailwind CSS. It follows atomic design principles and provides a consistent, accessible, and reusable set of UI components.
+
+## Core Components
+
+### Button
+
+The Button component is a versatile, accessible button that supports multiple variants and sizes.
+
+```jsx
+import { Button } from '@/components/ui/Button';
+
+// Basic usage
+<Button>Click me</Button>
+
+// Variants
+<Button variant="default">Default</Button>
+<Button variant="destructive">Destructive</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="secondary">Secondary</Button>
+<Button variant="ghost">Ghost</Button>
+
+// Sizes
+<Button size="default">Default</Button>
+<Button size="sm">Small</Button>
+<Button size="lg">Large</Button>
+<Button size="icon">Icon</Button>
+```
+
+**Props:**
+- `variant`: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost'
+- `size`: 'default' | 'sm' | 'lg' | 'icon'
+- `asChild`: boolean (optional) - Allows button to be rendered as another element
+- All standard button HTML attributes
+
+### Input
+
+The Input component is a styled form input with support for error states.
+
+```jsx
+import { Input } from '@/components/ui/Input';
+
+// Basic usage
+<Input placeholder="Enter text" />
+
+// With error state
+<Input error="This field is required" />
+
+// Disabled state
+<Input disabled />
+```
+
+**Props:**
+- `error`: string (optional) - Error message
+- All standard input HTML attributes
+
+### Card
+
+The Card component provides a flexible container for content.
+
+```jsx
+import { Card } from '@/components/ui/Card';
+
+<Card>
+  <Card.Header>
+    <Card.Title>Title</Card.Title>
+    <Card.Description>Description</Card.Description>
+  </Card.Header>
+  <Card.Content>
+    Content goes here
+  </Card.Content>
+  <Card.Footer>
+    Footer content
+  </Card.Footer>
+</Card>
+```
+
+**Components:**
+- `Card` - Main container
+- `Card.Header` - Header section
+- `Card.Title` - Card title
+- `Card.Description` - Card description
+- `Card.Content` - Main content area
+- `Card.Footer` - Footer section
+
+### Typography
+
+The Typography component ensures consistent text styling across the application.
+
+```jsx
+import { Typography } from '@/components/ui/Typography';
+
+<Typography variant="h1">Heading 1</Typography>
+<Typography variant="h2">Heading 2</Typography>
+<Typography variant="body">Body text</Typography>
+<Typography variant="small">Small text</Typography>
+```
+
+**Props:**
+- `variant`: 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'muted'
+- `className`: string (optional) - Additional CSS classes
+
+## Best Practices
+
+### Component Composition
+- Use composition over inheritance
+- Keep components focused and single-responsibility
+- Use children prop for flexible content
+
+### State Management
+- Use controlled components when needed
+- Implement uncontrolled components with refs when appropriate
+- Keep state as local as possible
+
+### Accessibility
+- Include proper ARIA attributes
+- Ensure keyboard navigation
+- Maintain proper focus management
+- Test with screen readers
+
+### Performance
+- Memoize callbacks with useCallback
+- Memoize expensive computations with useMemo
+- Use React.memo for pure components
+- Implement proper loading states
+
+### Error Handling
+- Implement error boundaries
+- Provide meaningful error messages
+- Include fallback UI for error states
+
+## Styling Guidelines
+
+### Tailwind CSS
+- Use utility classes
+- Follow mobile-first approach
+- Maintain consistent spacing scale
+- Use CSS variables for theming
+
+### Dark Mode
+- Support dark mode with `dark:` variant
+- Test color contrast in both modes
+- Use CSS variables for theme colors
+
+### Responsive Design
+- Use breakpoint prefixes (sm:, md:, lg:, xl:)
+- Test on various screen sizes
+- Implement proper touch targets for mobile
+
+## Contributing
+
+### Adding New Components
+- Follow existing patterns
+- Include proper documentation
+- Add comprehensive tests
+- Include Storybook stories
+
+### Modifying Components
+- Maintain backward compatibility
+- Update documentation
+- Update tests
+- Update stories
+
+### Code Review
+- Follow PR template
+- Include visual tests
+- Update component documentation
+- Ensure accessibility compliance

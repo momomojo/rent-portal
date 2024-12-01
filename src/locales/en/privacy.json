@@ -1,0 +1,86 @@
+{
+  "title": "Privacy Policy",
+  "dataCollection": {
+    "title": "Data Collection",
+    "description": "We collect various types of information to provide and improve our services to you.",
+    "items": {
+      "personal": "Personal information (name, email, phone number)",
+      "usage": "Usage data (how you interact with our services)",
+      "technical": "Technical data (IP address, browser type, device information)"
+    }
+  },
+  "dataPurpose": {
+    "title": "How We Use Your Data",
+    "description": "We use your data for the following purposes:",
+    "items": {
+      "service": "To provide and maintain our services",
+      "improvement": "To improve and personalize your experience",
+      "communication": "To communicate with you about our services",
+      "legal": "To comply with legal obligations"
+    }
+  },
+  "dataRights": {
+    "title": "Your Data Rights",
+    "description": "Under GDPR and other applicable data protection laws, you have certain rights regarding your data:",
+    "items": {
+      "access": "Right to access your personal data",
+      "rectification": "Right to correct inaccurate data",
+      "erasure": "Right to request deletion of your data",
+      "portability": "Right to receive your data in a portable format",
+      "withdraw": "Right to withdraw consent at any time"
+    }
+  },
+  "cookies": {
+    "title": "Cookie Policy",
+    "description": "We use cookies and similar tracking technologies to track activity on our service and hold certain information.",
+    "types": {
+      "necessary": {
+        "title": "Necessary Cookies",
+        "description": "Essential for the website to function properly. These cannot be disabled."
+      },
+      "analytics": {
+        "title": "Analytics Cookies",
+        "description": "Help us understand how visitors interact with our website by collecting anonymous information."
+      },
+      "marketing": {
+        "title": "Marketing Cookies",
+        "description": "Used to track visitors across websites to display relevant advertisements."
+      },
+      "preferences": {
+        "title": "Preference Cookies",
+        "description": "Enable the website to remember your preferences and personalization settings."
+      }
+    }
+  },
+  "dataRetention": {
+    "title": "Data Retention",
+    "description": "We retain your data for as long as necessary to fulfill the purposes outlined in this policy:",
+    "items": {
+      "account": "Account data is retained while your account is active",
+      "legal": "Some data may be retained longer to comply with legal obligations",
+      "backup": "Backup data is retained according to our backup rotation policy"
+    }
+  },
+  "dataSecurity": {
+    "title": "Data Security",
+    "description": "We implement appropriate security measures to protect your data:",
+    "items": {
+      "encryption": "Data encryption in transit and at rest",
+      "access": "Strict access controls and authentication",
+      "monitoring": "Regular security monitoring and testing"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "If you have any questions about this Privacy Policy, please contact us:",
+    "email": {
+      "label": "Email",
+      "value": "privacy@example.com"
+    },
+    "address": {
+      "label": "Address",
+      "value": "123 Privacy Street, Data City, 12345"
+    }
+  },
+  "lastUpdated": "Last updated: {{date}}"
+}
